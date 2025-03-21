@@ -1,0 +1,9 @@
+{
+    "data":[
+        { "value": 1048, "name": "前端开发" },
+          { "value": 735, "name": "Java开发" },
+          { "value": 580, "name": "运维工程师" },
+          { "value": 484, "name": "测试工程师" }, 
+          { "value": 300, "name": "UI设计" }
+    ]
+}
