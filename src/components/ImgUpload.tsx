@@ -56,7 +56,7 @@ const ImgUpload: React.FC<IProps> = (props) => {
     getBase64(info.file, async (myBase64) => {
       // console.log(base64);
       // 使用SDK的方法构建资源并save存储至云端
-      const res: any = await new Cloud.File("code26.png", {
+      const res: any = await new Cloud.File(`${info.file.name}`, {
         base64: myBase64,
       }).save();
       const { url } = res.attributes;

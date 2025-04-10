@@ -1,5 +1,5 @@
 // 集中管理跟课程相关的网络请求
-import { CategoryType, CourseType } from "../type/course";
+import { BannerType, CategoryType, CourseType } from "../type/course";
 import request from "../utils/request";
 // 录入课程分类数据
 export const categoryPost = (category:CategoryType) => {
@@ -67,4 +67,9 @@ export const courseGet = ({name, isVip}:{name:string, isVip?:boolean | number}) 
 // 数据统计
 export const chartGet = () => {
     return request.get('/classes/ReactChart')
+}
+
+// 新增轮播图
+export const bannerPost = (banner:BannerType) => {
+    return request.post('/classes/ReactBanner', banner)
 }

@@ -21,3 +21,9 @@ export interface CourseType {
     cate:Array<string>
 }
 
+export interface BannerType {
+    objectId?:string
+    img:string
+    music:string
+    name:string
+}

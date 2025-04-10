@@ -20,6 +20,7 @@ import PermissionDeny from "../views/PermissionDeny";
 import ImportExcel from "../views/Excel/ImportExcel";
 import ExportExcel from "../views/Excel/ExportExcel";
 import UpLoadFile from "../views/LargeFile/index";
+import Banner from "../views/Banner";
 // 自定义动态渲染菜单的数据包
 // 1.用来渲染菜单
 // 2.渲染路由
@@ -79,6 +80,13 @@ const mainRoutes: Array<IMenuType> = [
     label: "个人设置",
     title: "个人设置",
     element: <Setting />,
+  },
+  {
+    key: "/banner",
+    icon: <SettingOutlined />,
+    label: "轮播图管理",
+    title: "轮播图管理",
+    element: <Banner />,
   },
   {
     key: "/excel",
