@@ -6,7 +6,15 @@ type Key = React.Key;
 
 // 用户登录
 export const userLogin = (account:AccountType) => {
-    return request.post('/login', account); // 登录
+    // return request.post('/login', account); // 登录
+    return Promise.resolve({
+        data: {
+            objectId: "mock_user_id_" + Math.random().toString(36).substring(7),
+            username: account.username || "admin",
+            sessionToken: "mock_session_token_123456",
+            roleId: "mock_role_id_admin"
+        }
+    });
 } 
 
 // 更新用户信息
@@ -26,8 +34,27 @@ export const rolePost = (role:RoleType) => {
 
 // 获取角色列表，角色id对应的数据
 export const roleGet = (id?:string) => {
-    const queryId = id ? `/${id}` : '';
-    return request.get(`/classes/ReactRole${queryId}`);
+    // const queryId = id ? `/${id}` : '';
+    // return request.get(`/classes/ReactRole${queryId}`);
+    return Promise.resolve({
+        data: {
+            roleName: "super_admin",
+            permission: [
+              "/dashboard",
+              "/category",
+              "/course",
+              "/system",
+              "/system/role",
+              "/system/user",
+              "/setting",
+              "/banner",
+              "/excel",
+              "/excel/importExcel",
+              "/excel/exportExcel",
+              "/largeFile"
+            ] 
+        }
+    });
 }
 
 // 删除角色

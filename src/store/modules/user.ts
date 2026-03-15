@@ -61,6 +61,8 @@ export default userSlice.reducer;
 
 // 异步登录：实现用户登录请求的异步方法
 export const userLoginAsync = async (account:AccountType, dispath:Dispatch, navigate:NavigateFunction) => {
+  // 清除旧的可能损坏的缓存数据
+  store2.remove('userInfo-code26');
   // 触发loginStart
   dispath(loginStart());
   // 发起网络请求

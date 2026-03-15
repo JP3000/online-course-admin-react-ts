@@ -9,6 +9,9 @@ import { Provider } from "react-redux";
 import store from "./store/index.tsx";
 import { createRoot } from "react-dom/client";
 
+// Import our API mock to intercept requests to LeanCloud (which is offline)
+import "./utils/mock";
+
 // leanCloud的SDK初始化，让SDK知道往哪里存文件
 Cloud.init({
   appId: "JdIMW4DdKVBPUgJ6xhZBqVLG-gzGzoHsz",
