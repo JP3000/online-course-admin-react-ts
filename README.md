@@ -50,15 +50,9 @@ npm run dev
 
 ## 测试账户
 
-账号：edison
-密码：123123
-
-## API 文档
-
-后端 API 参考 leanCloud 官方 REST API 文档
+账号：admin
+密码：admin
 
 ## 说明
-
-- 本项目参考 qf 教育平台后台管理系统，感谢 qf 教育前端课程。
 - 本项目仅供学习交流使用，请勿用于商业用途。
 - 如有疑问，请提交 issue。
