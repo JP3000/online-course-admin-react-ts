@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, Cascader, Form, Input, Space, Switch } from "antd";
+import { Button, Cascader, Form, Input, Space, Switch, message } from "antd";
 import { CategoryType, CourseType } from "../../type/course";
 import { categoryGet, coursePost } from "../../api/course";
 import ImgUpload from "../../components/ImgUpload";
@@ -15,11 +15,27 @@ type SizeType = Parameters<typeof Form>[0]["size"];
 
 const CoursePub: React.FC = () => {
   const [cateList, setCateList] = useState<Array<CategoryType>>([]);
-  const handleFinsh = (values: CourseType) => {
-    values.level1 = values.cate[0]; //一级类目
-    values.level2 = values.cate[1]; // 二级类目
-    coursePost(values);
-    alert("发布成功");
+  const [form] = Form.useForm();
+
+  const handleFinsh = async (values: CourseType) => {
+    if (!values.cate || values.cate.length < 2) {
+      message.warning("请选择完整课程分类");
+      return;
+    }
+
+    const payload: CourseType = {
+      ...values,
+      level1: values.cate[0],
+      level2: values.cate[1],
+    };
+
+    try {
+      await coursePost(payload);
+      message.success("发布成功");
+      form.resetFields();
+    } catch {
+      message.error("发布失败，请稍后重试");
+    }
   };
 
   useEffect(() => {
@@ -53,6 +69,7 @@ const CoursePub: React.FC = () => {
 
   return (
     <Form
+      form={form}
       labelCol={{ span: 8 }}
       wrapperCol={{ span: 16 }}
       layout="horizontal"
@@ -93,7 +110,9 @@ const CoursePub: React.FC = () => {
           <Button type="primary" htmlType="submit">
             确认
           </Button>
-          <Button htmlType="button">重置</Button>
+          <Button htmlType="button" onClick={() => form.resetFields()}>
+            重置
+          </Button>
         </Space>
       </Form.Item>
     </Form>

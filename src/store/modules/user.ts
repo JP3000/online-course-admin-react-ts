@@ -77,7 +77,18 @@ export const userLoginAsync = async (account:AccountType, dispath:Dispatch, navi
     navigate("/");
   } catch (error) {
     // 失败，触发loginFail
+    const err = error as {
+      message?: string;
+      response?: { status?: number; data?: { error?: string } };
+      config?: { baseURL?: string; url?: string };
+    };
+    const status = err.response?.status;
+    const detail = err.response?.data?.error || err.message || "未知错误";
+    const requestUrl = err.config?.baseURL && err.config?.url
+      ? `${err.config.baseURL}${err.config.url}`
+      : err.config?.url;
+
     dispath(loginFail());
-    alert(`登录失败 ${error}`);
+    alert(`登录失败${status ? ` (${status})` : ""}: ${detail}${requestUrl ? `\n请求: ${requestUrl}` : ""}`);
   }
 }

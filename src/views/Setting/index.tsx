@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import type { FormProps } from "antd";
-import { Button, Checkbox, Form, Input } from "antd";
+import { Button, Checkbox, Form, Input, message } from "antd";
 import ImgUpload from "../../components/ImgUpload";
 import { useAppSelector } from "../../store";
 import { userUpdate } from "../../api/user";
@@ -14,10 +14,12 @@ type FieldType = {
 };
 
 const onFinishFailed: FormProps<FieldType>["onFinishFailed"] = (errorInfo) => {
-  console.log("Failed:", errorInfo);
+  if (errorInfo.errorFields.length) {
+    message.error("表单校验失败，请检查后重试");
+  }
 };
 
-const Setting: React.FC = () => {
+const Setting = () => {
   const [form] = Form.useForm();
   // 提取状态机中的用户信息
   const { user } = useAppSelector((state) => state);
@@ -32,13 +34,22 @@ const Setting: React.FC = () => {
         avatar: avatar,
       });
     }
-  }, []);
+  }, [form, user.userInfo]);
 
-  const onFinish = async (values: any) => {
-    console.log("Success:", values);
+  const onFinish = async (values: FieldType) => {
+    if (!user.userInfo) {
+      message.error("用户信息不存在，请重新登录");
+      return;
+    }
+
     const { objectId, sessionToken } = user.userInfo!;
-    await userUpdate(objectId, values, sessionToken);
-    dispatch(loginSuccess({ ...user.userInfo, ...values })); //更新本地用户信息
+    try {
+      await userUpdate(objectId, values, sessionToken);
+      dispatch(loginSuccess({ ...user.userInfo, ...values })); //更新本地用户信息
+      message.success("修改成功");
+    } catch {
+      message.error("修改失败，请稍后重试");
+    }
   };
   return (
     <Form

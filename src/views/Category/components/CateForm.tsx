@@ -1,8 +1,8 @@
 // 单独封装弹窗表单
-import React from "react";
-import { Button, Form, Input, Select, Space, Switch } from "antd";
+import { useEffect } from "react";
+import { Button, Form, Input, Select, Space, Switch, message } from "antd";
 import { CategoryType } from "../../../type/course";
-import { categoryPost } from "../../../api/course";
+import { categoryPost, categoryPut } from "../../../api/course";
 
 const { Option } = Select;
 
@@ -19,23 +19,61 @@ const tailLayout = {
 type Props = {
   handleCancel: () => void;
   cateList: CategoryType[];
-  updateCateList: (arg: CategoryType) => void;
+  cateData: CategoryType | null;
+  onSaved: () => Promise<void> | void;
 };
 
 const CateForm: React.FC<Props> = (props) => {
   const [form] = Form.useForm();
 
   const onFinish = async (values: CategoryType) => {
-    // console.log(values); // 表单数据，没有objectId
-    const res = await categoryPost(values);
-    const { objectId } = res.data; // 后端下发的唯一Id
-    props.updateCateList({ ...values, objectId }); // 向父级提交新增成功的数据，同时呈现在父级列表
-    props.handleCancel(); // 关闭弹窗
+    try {
+      if (props.cateData?.objectId) {
+        await categoryPut(props.cateData.objectId, values);
+        message.success("分类修改成功");
+      } else {
+        await categoryPost(values);
+        message.success("分类新增成功");
+      }
+
+      await props.onSaved();
+      props.handleCancel(); // 关闭弹窗
+    } catch {
+      message.error(props.cateData ? "分类修改失败" : "分类新增失败");
+    }
   };
 
   const onReset = () => {
-    form.resetFields();
+    if (props.cateData) {
+      form.setFieldsValue({
+        name: props.cateData.name,
+        parentId: props.cateData.parentId,
+        isShow: props.cateData.isShow,
+      });
+      return;
+    }
+
+    form.setFieldsValue({
+      name: "",
+      parentId: "0-0",
+      isShow: true,
+    });
   };
+
+  useEffect(() => {
+    if (props.cateData) {
+      form.setFieldsValue({
+        name: props.cateData.name,
+        parentId: props.cateData.parentId,
+        isShow: props.cateData.isShow,
+      });
+    } else {
+      form.setFieldsValue({
+        parentId: "0-0",
+        isShow: true,
+      });
+    }
+  }, [form, props.cateData]);
 
   return (
     <Form
@@ -53,6 +91,9 @@ const CateForm: React.FC<Props> = (props) => {
         <Select placeholder="请选择父级类目" allowClear>
           <Option value="0-0">顶级类目</Option>
           {props.cateList.map((item) => {
+            if (item.objectId === props.cateData?.objectId) {
+              return null;
+            }
             return (
               <Option key={item.objectId} value={item.objectId}>
                 {item.name}
@@ -74,7 +115,7 @@ const CateForm: React.FC<Props> = (props) => {
       <Form.Item {...tailLayout}>
         <Space>
           <Button type="primary" htmlType="submit">
-            确认
+            {props.cateData ? "修改" : "确认"}
           </Button>
           <Button htmlType="button" onClick={onReset}>
             重置

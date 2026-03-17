@@ -12,8 +12,17 @@ export const categoryGet = () => {
 }
 
 // 更新分类
-export const categoryPut = (objectId:string, isShow:boolean) => {
-    return request.put(`/classes/ReactCategory/${objectId}`,{isShow:isShow})
+export const categoryPut = (
+    objectId:string,
+    data:Partial<CategoryType> | boolean
+) => {
+    const payload = typeof data === 'boolean' ? { isShow: data } : data;
+    return request.put(`/classes/ReactCategory/${objectId}`, payload)
+}
+
+// 删除分类
+export const categoryDelete = (objectId:string) => {
+    return request.delete(`/classes/ReactCategory/${objectId}`)
 }
 
 // 新增课程

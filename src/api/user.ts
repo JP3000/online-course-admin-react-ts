@@ -1,24 +1,15 @@
 // 集中管理 跟用户相关的业务请求
 import { AccountType, RoleType, UserInfoType } from "../type/user";
 import request from "../utils/request";
-import React from "react";
-type Key = React.Key;
+type Key = string | number;
 
 // 用户登录
 export const userLogin = (account:AccountType) => {
-    // return request.post('/login', account); // 登录
-    return Promise.resolve({
-        data: {
-            objectId: "mock_user_id_" + Math.random().toString(36).substring(7),
-            username: account.username || "admin",
-            sessionToken: "mock_session_token_123456",
-            roleId: "mock_role_id_admin"
-        }
-    });
+    return request.post('/login', account); // 登录
 } 
 
 // 更新用户信息
-export const userUpdate = (id:string, userObj:UserInfoType, token:string) => {
+export const userUpdate = (id:string, userObj:Partial<UserInfoType>, token:string) => {
     return request.put(`/users/${id}`, userObj, {
         headers:{
         "X-LC-Session":token,//当前请求额外携带的headers
@@ -34,27 +25,8 @@ export const rolePost = (role:RoleType) => {
 
 // 获取角色列表，角色id对应的数据
 export const roleGet = (id?:string) => {
-    // const queryId = id ? `/${id}` : '';
-    // return request.get(`/classes/ReactRole${queryId}`);
-    return Promise.resolve({
-        data: {
-            roleName: "super_admin",
-            permission: [
-              "/dashboard",
-              "/category",
-              "/course",
-              "/system",
-              "/system/role",
-              "/system/user",
-              "/setting",
-              "/banner",
-              "/excel",
-              "/excel/importExcel",
-              "/excel/exportExcel",
-              "/largeFile"
-            ] 
-        }
-    });
+    const queryId = id ? `/${id}` : '';
+    return request.get(`/classes/ReactRole${queryId}`);
 }
 
 // 删除角色

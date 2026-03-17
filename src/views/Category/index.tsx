@@ -1,74 +1,21 @@
-import { Button, Col, Modal, Row, Switch, Table } from "antd";
+import { Button, Col, message, Modal, Popconfirm, Row, Space, Switch, Table } from "antd";
 import { useEffect, useState } from "react";
-import { categoryGet, categoryPut } from "../../api/course";
-import { Space } from "antd";
+import { categoryDelete, categoryGet, categoryPut } from "../../api/course";
 import type { TableProps } from "antd";
 import { CategoryType } from "../../type/course";
 import CateForm from "./components/CateForm";
 import ButtonAuth from "../../auth/ButtonAuth";
 
-const handleChange = (checked: boolean, id: string) => {
-  // console.log(checked, id);
-  categoryPut(id, checked); // 更新上架状态
-};
-
-const columns: TableProps<CategoryType>["columns"] = [
-  {
-    title: "类目级别",
-    dataIndex: "parentId", // 当前这一列要渲染的字段
-    key: "parentId",
-    render: (text) => {
-      return text == "0-0" ? "顶级类名" : "";
-    }, // 自定义渲染函数
-  },
-  {
-    title: "分类名称",
-    dataIndex: "name",
-    key: "name",
-  },
-  {
-    title: "是否上架",
-    dataIndex: "isShow",
-    key: "isShow",
-    render: (bool: boolean, record) => {
-      return (
-        <Switch
-          defaultChecked={bool}
-          onChange={(checked) => {
-            handleChange(checked, record.objectId as string);
-          }}
-        />
-      );
-    },
-  },
-  {
-    title: "操作",
-    key: "操作",
-    render: () => (
-      // _, record
-      <Space size="middle">
-        <Button type="primary" size="small">
-          编辑
-        </Button>
-        <ButtonAuth permit={["超级管理员"]}>
-          <Button danger type="primary" size="small">
-            删除
-          </Button>
-        </ButtonAuth>
-      </Space>
-    ),
-  },
-];
-
 const Catergory = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [cateList, setCateList] = useState<Array<CategoryType>>([]);
+  const [currentCate, setCurrentCate] = useState<CategoryType | null>(null);
 
-  useEffect(() => {
-    categoryGet().then((res) => {
-      // console.log(res);
-      // 将后端下发的result数据，整理为有父子关系的树形数据
+  const fetchCateList = async () => {
+    try {
+      const res = await categoryGet();
       const { results } = res.data;
+      // 将后端下发的result数据，整理为有父子关系的树形数据
       // 找到所有的顶级类目
       const parentArr = results.filter(
         (item: CategoryType) => item.parentId == "0-0"
@@ -84,10 +31,106 @@ const Catergory = () => {
       });
 
       setCateList(parentArr);
-    });
+    } catch {
+      message.error("分类列表加载失败，请稍后重试");
+    }
+  };
+
+  const handleChange = async (checked: boolean, id?: string) => {
+    if (!id) {
+      return;
+    }
+
+    try {
+      await categoryPut(id, checked); // 更新上架状态
+      message.success("状态更新成功");
+      await fetchCateList();
+    } catch {
+      message.error("状态更新失败，请稍后重试");
+    }
+  };
+
+  const handleDelete = async (id?: string) => {
+    if (!id) {
+      return;
+    }
+
+    try {
+      await categoryDelete(id);
+      message.success("删除成功");
+      await fetchCateList();
+    } catch {
+      message.error("删除失败，请稍后重试");
+    }
+  };
+
+  const columns: TableProps<CategoryType>["columns"] = [
+    {
+      title: "类目级别",
+      dataIndex: "parentId", // 当前这一列要渲染的字段
+      key: "parentId",
+      render: (text) => {
+        return text == "0-0" ? "顶级类目" : "二级类目";
+      }, // 自定义渲染函数
+    },
+    {
+      title: "分类名称",
+      dataIndex: "name",
+      key: "name",
+    },
+    {
+      title: "是否上架",
+      dataIndex: "isShow",
+      key: "isShow",
+      render: (bool: boolean, record) => {
+        return (
+          <Switch
+            checked={!!bool}
+            onChange={(checked) => {
+              handleChange(checked, record.objectId);
+            }}
+          />
+        );
+      },
+    },
+    {
+      title: "操作",
+      key: "操作",
+      render: (_, record) => (
+        <Space size="middle">
+          <Button
+            type="primary"
+            size="small"
+            onClick={() => {
+              setCurrentCate(record);
+              setIsModalOpen(true);
+            }}
+          >
+            编辑
+          </Button>
+          <ButtonAuth permit={["超级管理员"]}>
+            <Popconfirm
+              title="确定删除该分类吗？"
+              okText="确定"
+              cancelText="取消"
+              onConfirm={() => handleDelete(record.objectId)}
+            >
+              <Button danger type="primary" size="small">
+                删除
+              </Button>
+            </Popconfirm>
+          </ButtonAuth>
+        </Space>
+      ),
+    },
+  ];
+
+  useEffect(() => {
+    fetchCateList();
   }, []);
 
   const showModal = () => {
+    setCurrentCate(null);
     setIsModalOpen(true);
   };
 
@@ -97,29 +140,7 @@ const Catergory = () => {
 
   const handleCancel = () => {
     setIsModalOpen(false);
-  };
-
-  // 实时更新表格数据
-  const updateCateList = (category: CategoryType) => {
-    // console.log("子组件提交的数据", category);
-    // 新增顶级类目
-    if (category.parentId == "0-0") {
-      cateList.push(category);
-      setCateList([...cateList]); // 追加新的一级类目
-    } else {
-      // 新增二级类目
-      // category.parentId = cateList[i].objectId
-      // 找到二级类目的父级
-      const index = cateList.findIndex(
-        (item) => item.objectId == category.parentId
-      );
-      if (cateList[index].children) {
-        cateList[index].children!.push(category); // 为已经有children的父级添加
-      } else {
-        cateList[index].children = [category]; // 为没有children的父级添加
-      }
-    }
-    setCateList([...cateList]); // 追加新类目
+    setCurrentCate(null);
   };
 
   return (
@@ -136,16 +157,18 @@ const Catergory = () => {
       <Table columns={columns} dataSource={cateList} rowKey="objectId"></Table>
       {/* 新增弹窗 */}
       <Modal
-        title="Basic Modal"
+        title={currentCate ? "编辑分类" : "新增分类"}
         open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
         footer={null}
+        destroyOnClose
       >
         <CateForm
           handleCancel={handleCancel}
           cateList={cateList}
-          updateCateList={updateCateList}
+          cateData={currentCate}
+          onSaved={fetchCateList}
         />
       </Modal>
     </div>

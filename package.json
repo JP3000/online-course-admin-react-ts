@@ -7,7 +7,11 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "backend:dev": "pnpm -C backend dev",
+    "backend:gen": "pnpm -C backend prisma:generate",
+    "backend:push": "pnpm -C backend db:push",
+    "backend:seed": "pnpm -C backend prisma:seed"
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.0",

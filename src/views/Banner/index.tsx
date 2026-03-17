@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from "react";
-import { Button, Form, Input, Space } from "antd";
+import { Button, Form, Input, Space, message } from "antd";
 
 import ImgUpload from "../../components/ImgUpload";
 import { BannerType } from "../../type/course";
@@ -12,10 +11,16 @@ const tailLayout = {
 
 type SizeType = Parameters<typeof Form>[0]["size"];
 
-const Banner: React.FC = () => {
-  const handleFinsh = (values: BannerType) => {
-    bannerPost(values);
-    alert("上传成功");
+const Banner = () => {
+  const [form] = Form.useForm();
+
+  const handleFinsh = async (values: BannerType) => {
+    try {
+      await bannerPost(values);
+      message.success("上传成功");
+    } catch {
+      message.error("上传失败，请稍后重试");
+    }
   };
 
   const initData = {
@@ -24,6 +29,7 @@ const Banner: React.FC = () => {
 
   return (
     <Form
+      form={form}
       labelCol={{ span: 8 }}
       wrapperCol={{ span: 16 }}
       layout="horizontal"
@@ -49,7 +55,9 @@ const Banner: React.FC = () => {
           <Button type="primary" htmlType="submit">
             确认
           </Button>
-          <Button htmlType="button">重置</Button>
+          <Button htmlType="button" onClick={() => form.resetFields()}>
+            重置
+          </Button>
         </Space>
       </Form.Item>
     </Form>
