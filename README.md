@@ -8,13 +8,19 @@
 
 ## 项目截图
 
-![image](./public/images/category.jpg)
+<p align="center">
+    <img src="./public/images/data_Statistics.jpg" alt="数据统计页面" width="48%" />
+    <img src="./public/images/category.jpg" alt="分类管理页面" width="48%" />
+</p>
 
-![image](./public/images/courses.jpg)
+<p align="center">
+    <img src="./public/images/courses.jpg" alt="课程管理页面" width="48%" />
+    <img src="./public/images/role.jpg" alt="角色管理页面" width="48%" />
+</p>
 
-![image](./public/images/role.jpg)
-
-![image](./public/images/user.jpg)
+<p align="center">
+    <img src="./public/images/user.jpg" alt="用户管理页面" width="60%" />
+</p>
 
 ## 功能模块
 
